@@ -1,0 +1,26 @@
+name: Update OTEL commit SHA (minikube)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  update-sha:
+    # If you added a custom label when registering the runner, use:
+    # runs-on: [self-hosted, minikube]
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show kubectl context
+        run: kubectl config current-context
+
+      - name: Update env + restart collector
+        run: |
+          echo "Setting SHA to ${GITHUB_SHA}"
+          kubectl set env deployment/otel-collector \
+            GIT_REPO_URL="https://github.com/ychrono/yc-otel-demo" \
+            GIT_COMMIT_SHA="${GITHUB_SHA}"
+          kubectl rollout restart deployment/otel-collector
+          kubectl rollout status deployment/otel-collector --timeout=120s
