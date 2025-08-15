@@ -1,0 +1,11 @@
+name: Test Runner
+
+on: [workflow_dispatch]
+
+jobs:
+  check-context:
+    runs-on: self-hosted
+    steps:
+      - run: kubectl config current-context
+      - run: kubectl get pods -n default
+
